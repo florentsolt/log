@@ -11,7 +11,7 @@ import (
 )
 
 func usage() {
-	fmt.Printf("Usage: %s [hostname@ip:port]...\n", os.Args[0])
+	fmt.Printf("Usage: %s [hostname@ip:port]... OR - (for stdin)\n", os.Args[0])
 	fmt.Println("Supported environment variables: FS_LOG_TCP FS_LOG_TCP_TIMEOUT FS_LOG_LEVEL FS_LOG_OUTPUT FS_LOG_NOCOLOR")
 	os.Exit(1)
 }
@@ -22,7 +22,7 @@ func main() {
 	}
 
 	hosts, err := ParseHosts(os.Args[1:])
-	if err != nil {
+	if err != nil || hosts.IsEmpty() {
 		fmt.Println(err)
 		usage()
 	}
@@ -37,7 +37,7 @@ func main() {
 	log.Console()
 
 	// read stdin
-	if hosts.IsEmpty() {
+	if hosts.IsStdin() {
 		reader := bufio.NewReader(os.Stdin)
 		for {
 			line, err := reader.ReadBytes('\n')

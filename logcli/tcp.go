@@ -13,20 +13,25 @@ type Hosts struct {
 	hosts []*Host
 }
 
-var re = regexp.MustCompile(`([\w\d\.\-_]+)@([^\s:]+):(\d+)`)
+var re = regexp.MustCompile(`(?:([\w\d\.\-_]+)@([^\s:]+):(\d+))|-`)
 
 func ParseHosts(strings []string) (*Hosts, error) {
 	result := &Hosts{}
 	maxLength := 0
 	for _, s := range strings {
 		matches := re.FindStringSubmatch(s)
-		if len(matches) != 4 {
+		switch len(matches) {
+		case 4:
+			if matches[0] == "-" {
+				// stding
+				result.hosts = append(result.hosts, &Host{name: matches[0]})
+			} else {
+				// normal case
+				result.hosts = append(result.hosts, &Host{name: matches[1], nameWithPaddingAndSpace: []byte(matches[1]), ip: matches[2], port: matches[3]})
+			}
+		default:
 			return nil, fmt.Errorf(`Malformed hostname@ip:port "%s" %#v`, s, matches)
 		}
-		if len(matches[1]) > maxLength {
-			maxLength = len(matches[1])
-		}
-		result.hosts = append(result.hosts, &Host{name: matches[1], nameWithPaddingAndSpace: []byte(matches[1]), ip: matches[2], port: matches[3]})
 	}
 
 	l := strconv.Itoa(maxLength)
@@ -38,6 +43,10 @@ func ParseHosts(strings []string) (*Hosts, error) {
 
 func (hh *Hosts) IsEmpty() bool {
 	return len(hh.hosts) == 0
+}
+
+func (hh *Hosts) IsStdin() bool {
+	return len(hh.hosts) == 1 && hh.hosts[0].name == "-"
 }
 
 func (hh *Hosts) Connect(timeout time.Duration) (Channel, error) {

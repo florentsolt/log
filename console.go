@@ -29,60 +29,61 @@ var colors = map[string]int{
 	"gray":    90,
 }
 
+var ConsoleWriter = zerolog.ConsoleWriter{
+	Out:        output,
+	TimeFormat: time.Kitchen,
+	NoColor:    os.Getenv(EnvNoColor) != "",
+	FormatCaller: func(i interface{}) string {
+		if caller, ok := i.(string); ok {
+			return colorize(path.Base(caller), ColorCaller)
+		}
+		return ""
+	},
+	FormatMessage: func(i interface{}) string {
+		if i == nil {
+			return colorize("-", ColorMessage)
+		}
+		return colorize(fmt.Sprintf("%s", i), ColorMessage)
+	},
+	FormatFieldName: func(i interface{}) string {
+		return colorize(fmt.Sprintf("%s=", i), ColorFieldName)
+	},
+	FormatFieldValue: func(i interface{}) string {
+		return colorize(fmt.Sprintf("%s", i), ColorFieldValue)
+	},
+	FormatLevel: func(i interface{}) string {
+		var l string
+		if ll, ok := i.(string); ok {
+			switch ll {
+			case "debug":
+				l = colorize("DBG", "gray")
+			case "info":
+				l = colorize("INF", "green")
+			case "warn":
+				l = colorize("WRN", "yellow")
+			case "error":
+				l = colorize("ERR", "red")
+			case "fatal":
+				l = colorize("FTL", "red")
+			case "panic":
+				l = colorize("PNC", "red")
+			default:
+				l = "???"
+			}
+		} else {
+			if i == nil {
+				l = "???"
+			} else {
+				l = strings.ToUpper(fmt.Sprintf("%s", i))[0:3]
+			}
+		}
+		return l
+	},
+}
+
 // Console enable preety printing instead of json
 func Console() {
-	log = log.Output(zerolog.ConsoleWriter{
-		Out:        output,
-		TimeFormat: time.Kitchen,
-		NoColor:    os.Getenv(EnvNoColor) != "",
-		FormatCaller: func(i interface{}) string {
-			if caller, ok := i.(string); ok {
-				return colorize(path.Base(caller), ColorCaller)
-			}
-			return ""
-		},
-		FormatMessage: func(i interface{}) string {
-			if i == nil {
-				return colorize("-", ColorMessage)
-			}
-			return colorize(fmt.Sprintf("%s", i), ColorMessage)
-		},
-		FormatFieldName: func(i interface{}) string {
-			return colorize(fmt.Sprintf("%s=", i), ColorFieldName)
-		},
-		FormatFieldValue: func(i interface{}) string {
-			return colorize(fmt.Sprintf("%s", i), ColorFieldValue)
-		},
-		FormatLevel: func(i interface{}) string {
-			var l string
-			if ll, ok := i.(string); ok {
-				switch ll {
-				case "debug":
-					l = colorize("DBG", "gray")
-				case "info":
-					l = colorize("INF", "green")
-				case "warn":
-					l = colorize("WRN", "yellow")
-				case "error":
-					l = colorize("ERR", "red")
-				case "fatal":
-					l = colorize("FTL", "red")
-				case "panic":
-					l = colorize("PNC", "red")
-				default:
-					l = "???"
-				}
-			} else {
-				if i == nil {
-					l = "???"
-				} else {
-					l = strings.ToUpper(fmt.Sprintf("%s", i))[0:3]
-				}
-			}
-			return l
-		},
-	})
-
+	log = log.Output(ConsoleWriter)
 }
 
 // https://github.com/rs/zerolog/blob/master/console.go#L265

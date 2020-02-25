@@ -48,7 +48,7 @@ func main() {
 				fmt.Printf("Unable to read stdin: %s", err.Error())
 				return
 			}
-			_, err = log.Write(line)
+			_, err = log.ConsoleWriter.Write(line)
 			if err != nil {
 				// in case of error, only dump on stdin the line
 				// fmt.Printf("Unable to write stderr: %s", err.Error())
@@ -64,8 +64,8 @@ func main() {
 		for {
 			message := <-channel
 			if len(message.Line) > 0 {
-				log.Output().Write(message.HostnameWithPaddingAndSpace)
-				_, err = log.Write(message.Line)
+				log.ConsoleWriter.Out.Write(message.HostnameWithPaddingAndSpace)
+				_, err = log.ConsoleWriter.Write(message.Line)
 				if err != nil {
 					// in case of error, only dump on stdin the line
 					// fmt.Printf("Unable to write stderr: %s", err.Error())

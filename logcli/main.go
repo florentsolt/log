@@ -34,8 +34,6 @@ func main() {
 		os.Exit(2)
 	}
 
-	log.Console()
-
 	// read stdin
 	if hosts.IsStdin() {
 		reader := bufio.NewReader(os.Stdin)

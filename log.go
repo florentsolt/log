@@ -21,6 +21,7 @@ func init() {
 	if os.Getenv(EnvOutput) == "stderr" {
 		output = os.Stderr
 	}
+	ConsoleWriter.Out = output
 
 	if os.Getenv(EnvTCP) != "" {
 		tcp := &TcpInterceptor{}
@@ -32,7 +33,7 @@ func init() {
 		}()
 		log = zerolog.New(tcp).With().Timestamp().Caller().Logger()
 	} else {
-		log = zerolog.New(output).With().Timestamp().Caller().Logger()
+		log = zerolog.New(ConsoleWriter).With().Timestamp().Caller().Logger()
 	}
 
 	if os.Getenv(EnvLevel) != "" {

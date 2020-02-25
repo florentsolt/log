@@ -30,7 +30,6 @@ var colors = map[string]int{
 }
 
 var ConsoleWriter = zerolog.ConsoleWriter{
-	Out:        output,
 	TimeFormat: time.Kitchen,
 	NoColor:    os.Getenv(EnvNoColor) != "",
 	FormatCaller: func(i interface{}) string {
@@ -79,11 +78,6 @@ var ConsoleWriter = zerolog.ConsoleWriter{
 		}
 		return l
 	},
-}
-
-// Console enable preety printing instead of json
-func Console() {
-	log = log.Output(ConsoleWriter)
 }
 
 // https://github.com/rs/zerolog/blob/master/console.go#L265

@@ -67,11 +67,11 @@ var ConsoleWriter = zerolog.ConsoleWriter{
 			case "panic":
 				l = colorize("PNC", "red")
 			default:
-				l = "???"
+				l = "   "
 			}
 		} else {
 			if i == nil {
-				l = "???"
+				l = "   "
 			} else {
 				l = strings.ToUpper(fmt.Sprintf("%s", i))[0:3]
 			}

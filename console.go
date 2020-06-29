@@ -87,9 +87,3 @@ func colorize(s interface{}, color string) string {
 	}
 	return fmt.Sprintf("\x1b[%dm%v\x1b[0m", colors[color], s)
 }
-
-// Write implements the io.Writer interface
-// In case of Console(), it transforms the JSON input with formatters
-func Write(p []byte) (n int, err error) {
-	return log.Write(p)
-}

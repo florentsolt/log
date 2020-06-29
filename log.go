@@ -23,18 +23,7 @@ func init() {
 	}
 	ConsoleWriter.Out = output
 
-	if os.Getenv(EnvTCP) != "" {
-		tcp := &TcpInterceptor{}
-		go func() {
-			err := tcp.ListenAndAccept(os.Getenv(EnvTCP))
-			if err != nil {
-				log.Error().Err(err).Msg("Unable to tcp listen")
-			}
-		}()
-		log = zerolog.New(tcp).With().Timestamp().Caller().Logger()
-	} else {
-		log = zerolog.New(ConsoleWriter).With().Timestamp().Caller().Logger()
-	}
+	log = zerolog.New(ConsoleWriter).With().Timestamp().Caller().Logger()
 
 	if os.Getenv(EnvLevel) != "" {
 		if os.Getenv(EnvLevel) == "disabled" {
@@ -95,4 +84,9 @@ func Stack() {
 	stack := make([]byte, 10*1024)
 	runtime.Stack(stack, false)
 	_, _ = log.Write(stack)
+}
+
+// Write implements the io.Writer interface
+func Write(p []byte) (n int, err error) {
+	return log.Write(p)
 }

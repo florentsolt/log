@@ -54,24 +54,24 @@ func Logger() zerolog.Logger {
 // from https://github.com/rs/zerolog/blob/master/log/log.go
 
 // Debug starts a new message with debug level.
-func Debug() *zerolog.Event { return log.Debug() }
+func Debug() *Event { return &Event{log.Debug()} }
 
 // Info starts a new message with info level.
-func Info() *zerolog.Event { return log.Info() }
+func Info() *Event { return &Event{log.Info()} }
 
 // Warn starts a new message with warn level.
-func Warn() *zerolog.Event { return log.Warn() }
+func Warn() *Event { return &Event{log.Warn()} }
 
 // Error starts a new message with error level.
-func Error() *zerolog.Event { return log.Error() }
+func Error() *Event { return &Event{log.Error()} }
 
 // Fatal starts a new message with fatal level. The os.Exit(1) function
 // is called by the Msg method.
-func Fatal() *zerolog.Event { return log.Fatal() }
+func Fatal() *Event { return &Event{log.Fatal()} }
 
 // Panic starts a new message with panic level. The message is also sent
 // to the panic function.
-func Panic() *zerolog.Event { return log.Panic() }
+func Panic() *Event { return &Event{log.Panic()} }
 
 // Print sends a log event using debug level and no extra field.
 func Print(v ...interface{}) { log.Print(v...) }

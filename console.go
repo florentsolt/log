@@ -29,7 +29,7 @@ var colors = map[string]int{
 	"gray":    90,
 }
 
-var ConsoleWriter = zerolog.ConsoleWriter{
+var ConsoleWriter = &zerolog.ConsoleWriter{
 	TimeFormat: time.Kitchen,
 	NoColor:    os.Getenv(EnvNoColor) != "",
 	FormatCaller: func(i interface{}) string {

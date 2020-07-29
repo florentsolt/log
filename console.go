@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -78,6 +79,11 @@ var ConsoleWriter = &zerolog.ConsoleWriter{
 		}
 		return l
 	},
+}
+
+// SetOutput writer
+func SetOutput(out io.Writer) {
+	ConsoleWriter.Out = out
 }
 
 // https://github.com/rs/zerolog/blob/master/console.go#L265

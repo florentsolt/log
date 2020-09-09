@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"runtime"
@@ -74,10 +75,16 @@ func Fatal() *Event { return &Event{log.Fatal()} }
 func Panic() *Event { return &Event{log.Panic()} }
 
 // Print sends a log event using debug level and no extra field.
-func Print(v ...interface{}) { log.Print(v...) }
+func Print(v ...interface{}) {
+	log := log.With().CallerWithSkipFrameCount(3).Logger()
+	log.Debug().Msg(fmt.Sprint(v...))
+}
 
 // Printf sends a log event using debug level and no extra field.
-func Printf(format string, v ...interface{}) { log.Printf(format, v...) }
+func Printf(format string, v ...interface{}) {
+	log := log.With().CallerWithSkipFrameCount(3).Logger()
+	log.Debug().Msg(fmt.Sprintf(format, v...))
+}
 
 // Stack dump the current stack in the log
 func Stack() {

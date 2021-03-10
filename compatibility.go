@@ -45,7 +45,7 @@ func (c CompatibilityWrapper) Infof(format string, args ...interface{}) {
 
 // warning
 func (c CompatibilityWrapper) Warning(args ...interface{}) {
-	c.wrapper.Warn().Msg(strings.TrimSpace(fmt.Sprint(args...))
+	c.wrapper.Warn().Msg(strings.TrimSpace(fmt.Sprint(args...)))
 }
 func (c CompatibilityWrapper) Warningln(args ...interface{}) {
 	c.wrapper.Warn().Msg(strings.TrimSpace(fmt.Sprint(args...)))
@@ -56,7 +56,7 @@ func (c CompatibilityWrapper) Warningf(format string, args ...interface{}) {
 
 // error
 func (c CompatibilityWrapper) Error(args ...interface{}) {
-	c.wrapper.Error().Msg(strings.TrimSpace(fmt.Sprint(args...))
+	c.wrapper.Error().Msg(strings.TrimSpace(fmt.Sprint(args...)))
 }
 func (c CompatibilityWrapper) Errorln(args ...interface{}) {
 	c.wrapper.Error().Msg(strings.TrimSpace(fmt.Sprint(args...)))
@@ -67,7 +67,7 @@ func (c CompatibilityWrapper) Errorf(format string, args ...interface{}) {
 
 // fatal
 func (c CompatibilityWrapper) Fatal(args ...interface{}) {
-	c.wrapper.Fatal().Msg(strings.TrimSpace(fmt.Sprint(args...))
+	c.wrapper.Fatal().Msg(strings.TrimSpace(fmt.Sprint(args...)))
 }
 func (c CompatibilityWrapper) Fatalln(args ...interface{}) {
 	c.wrapper.Fatal().Msg(strings.TrimSpace(fmt.Sprint(args...)))

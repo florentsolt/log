@@ -61,13 +61,26 @@ func Logger() Wrapper {
 
 // from https://github.com/rs/zerolog/blob/master/log/log.go
 
-func Trace() *Event { return &Event{instance.Trace()} }
-func Debug() *Event { return &Event{instance.Debug()} }
-func Info() *Event  { return &Event{instance.Info()} }
-func Warn() *Event  { return &Event{instance.Warn()} }
-func Error() *Event { return &Event{instance.Error()} }
-func Fatal() *Event { return &Event{instance.Fatal()} }
-func Panic() *Event { return &Event{instance.Panic()} }
+func (w Wrapper) Trace() *Event { return &Event{w.Logger.Trace()} }
+func Trace() *Event             { return instance.Trace() }
+
+func (w Wrapper) Debug() *Event { return &Event{w.Logger.Debug()} }
+func Debug() *Event             { return instance.Debug() }
+
+func (w Wrapper) Info() *Event { return &Event{w.Logger.Info()} }
+func Info() *Event             { return instance.Info() }
+
+func (w Wrapper) Warn() *Event { return &Event{w.Logger.Warn()} }
+func Warn() *Event             { return instance.Warn() }
+
+func (w Wrapper) Error() *Event { return &Event{w.Logger.Error()} }
+func Error() *Event             { return instance.Error() }
+
+func (w Wrapper) Fatal() *Event { return &Event{w.Logger.Fatal()} }
+func Fatal() *Event             { return instance.Fatal() }
+
+func (w Wrapper) Panic() *Event { return &Event{w.Logger.Panic()} }
+func Panic() *Event             { return instance.Panic() }
 
 // Print sends a log event using debug level and no extra field.
 func (w Wrapper) Print(v ...interface{}) {

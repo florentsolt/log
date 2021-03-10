@@ -7,5 +7,5 @@ import (
 )
 
 func HttpHandler() func(http.Handler) http.Handler {
-	return hlog.NewHandler(log)
+	return hlog.NewHandler(instance.Logger)
 }

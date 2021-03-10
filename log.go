@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"runtime"
 	"time"
 
 	"github.com/rs/zerolog"
 )
 
-var log zerolog.Logger
+var instance Wrapper
 
 // Return the output used by the logger
 func Output() io.Writer {
@@ -26,7 +25,7 @@ func init() {
 	if os.Getenv(EnvJson) == "" {
 		w = Writer
 	}
-	log = zerolog.New(w).With().Timestamp().Caller().Logger()
+	instance = Wrapper{zerolog.New(w).With().Timestamp().Caller().Logger()}
 	zerolog.DurationFieldUnit = time.Second
 	zerolog.DurationFieldInteger = false
 
@@ -35,7 +34,7 @@ func init() {
 			zerolog.SetGlobalLevel(zerolog.Disabled)
 		} else {
 			if err := SetLevel(os.Getenv(EnvLevel)); err != nil {
-				log.Error().Err(err).Msg("Unable to set error level")
+				instance.Error().Err(err).Msg("Unable to set error level")
 			}
 		}
 	}
@@ -51,56 +50,59 @@ func SetLevel(level string) error {
 	return nil
 }
 
+type Wrapper struct {
+	zerolog.Logger
+}
+
 // Return the logger object
-func Logger() zerolog.Logger {
-	return log
+func Logger() Wrapper {
+	return instance
 }
 
 // from https://github.com/rs/zerolog/blob/master/log/log.go
 
 // Trace starts a new message with debug level.
-func Trace() *Event { return &Event{log.Trace()} }
+func Trace() *Event { return &Event{instance.Trace()} }
 
 // Debug starts a new message with debug level.
-func Debug() *Event { return &Event{log.Debug()} }
+func Debug() *Event { return &Event{instance.Debug()} }
 
 // Info starts a new message with info level.
-func Info() *Event { return &Event{log.Info()} }
+func Info() *Event { return &Event{instance.Info()} }
 
 // Warn starts a new message with warn level.
-func Warn() *Event { return &Event{log.Warn()} }
+func Warn() *Event { return &Event{instance.Warn()} }
 
 // Error starts a new message with error level.
-func Error() *Event { return &Event{log.Error()} }
+func Error() *Event { return &Event{instance.Error()} }
 
 // Fatal starts a new message with fatal level. The os.Exit(1) function
 // is called by the Msg method.
-func Fatal() *Event { return &Event{log.Fatal()} }
+func Fatal() *Event { return &Event{instance.Fatal()} }
 
 // Panic starts a new message with panic level. The message is also sent
 // to the panic function.
-func Panic() *Event { return &Event{log.Panic()} }
+func Panic() *Event { return &Event{instance.Panic()} }
 
 // Print sends a log event using debug level and no extra field.
+func (w Wrapper) Print(v ...interface{}) {
+	l := w.With().CallerWithSkipFrameCount(3).Logger()
+	l.Debug().Msg(fmt.Sprint(v...))
+}
 func Print(v ...interface{}) {
-	log := log.With().CallerWithSkipFrameCount(3).Logger()
-	log.Debug().Msg(fmt.Sprint(v...))
+	instance.Print(v...)
 }
 
 // Printf sends a log event using debug level and no extra field.
-func Printf(format string, v ...interface{}) {
-	log := log.With().CallerWithSkipFrameCount(3).Logger()
-	log.Debug().Msg(fmt.Sprintf(format, v...))
+func (w Wrapper) Printf(format string, v ...interface{}) {
+	l := w.With().CallerWithSkipFrameCount(3).Logger()
+	l.Debug().Msg(fmt.Sprintf(format, v...))
 }
-
-// Stack dump the current stack in the log
-func Stack() {
-	stack := make([]byte, 10*1024)
-	runtime.Stack(stack, false)
-	log.Debug().Msg(string(stack))
+func Printf(format string, v ...interface{}) {
+	instance.Printf(format, v...)
 }
 
 // Write implements the io.Writer interface
 func Write(p []byte) (n int, err error) {
-	return log.Write(p)
+	return instance.Write(p)
 }

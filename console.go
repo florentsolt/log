@@ -59,6 +59,11 @@ func (c *Console) Write(p []byte) (n int, err error) {
 		}
 	}
 
+	callers, ok := data["callers"].([]interface{})
+	if callers != nil && ok {
+		delete(data, "callers")
+	}
+
 	fields := make([]string, 0, len(data))
 	for field := range data {
 		fields = append(fields, field)
@@ -67,10 +72,36 @@ func (c *Console) Write(p []byte) (n int, err error) {
 
 	for _, field := range fields {
 		buf.WriteString(c.Colorize(fmt.Sprintf("%s=", field), Cyan)) // need quote?
+
+		if field == "heap" {
+			cast, ok := data["heap"].([]interface{})
+			if ok && len(cast) == 2 {
+				alloc, err1 := cast[0].(json.Number).Float64()
+				total, err2 := cast[0].(json.Number).Float64()
+				if err1 == nil && err2 == nil {
+					buf.WriteString(c.Colorize(fmt.Sprintf(
+						"%.2fMB/%.2fMB",
+						alloc/1000000,
+						total/1000000,
+					), None))
+					buf.WriteByte(' ')
+					continue
+				}
+			}
+		}
 		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[field]), None))
 		buf.WriteByte(' ')
 	}
 	buf.WriteByte('\n')
+
+	if callers != nil {
+		for _, caller := range callers {
+			buf.WriteByte('\t')
+			buf.WriteString(fmt.Sprintf("%s", caller))
+			buf.WriteByte('\n')
+
+		}
+	}
 
 	_, err = buf.WriteTo(c.Out)
 	return len(p), err

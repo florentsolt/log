@@ -1,12 +1,14 @@
 package log
 
 import (
+	"errors"
 	"testing"
 	"time"
 )
 
 func TestLog(t *testing.T) {
 	Info().Msg("Hello World!")
+	Error().Err(errors.New("Bad things")).Msg("Oops")
 	Warn().Msg("Did you notice the last stack enty?")
 	Debug().Heap().Msg("Ok but what about memory?")
 	Stack()

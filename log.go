@@ -12,20 +12,21 @@ import (
 
 var log zerolog.Logger
 
-var output = os.Stdout
-
 // Return the output used by the logger
 func Output() io.Writer {
-	return output
+	if os.Getenv(EnvOutput) == "stderr" {
+		return os.Stderr
+	} else {
+		return os.Stdout
+	}
 }
 
 func init() {
-	if os.Getenv(EnvOutput) == "stderr" {
-		output = os.Stderr
+	w := Output()
+	if os.Getenv(EnvJson) == "" {
+		w = Writer
 	}
-	ConsoleWriter.Out = output
-
-	log = zerolog.New(ConsoleWriter).With().Timestamp().Caller().Logger()
+	log = zerolog.New(w).With().Timestamp().Caller().Logger()
 	zerolog.DurationFieldUnit = time.Second
 	zerolog.DurationFieldInteger = false
 
@@ -96,7 +97,7 @@ func Printf(format string, v ...interface{}) {
 func Stack() {
 	stack := make([]byte, 10*1024)
 	runtime.Stack(stack, false)
-	_, _ = log.Write(stack)
+	log.Debug().Msg(string(stack))
 }
 
 // Write implements the io.Writer interface

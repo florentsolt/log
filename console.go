@@ -1,20 +1,24 @@
 package log
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/oxtoacart/bpool"
 	"github.com/rs/zerolog"
 )
 
 const (
 	None    = 0
 	Black   = 30
-	Red     = 21
+	Red     = 31
 	Green   = 32
 	Yellow  = 33
 	Blue    = 34
@@ -29,78 +33,136 @@ const (
 	ColorFieldValue = None
 )
 
-var ConsoleWriter = &zerolog.ConsoleWriter{
-	PartsOrder: []string{
+var pool = bpool.NewBufferPool(48)
+
+type Console struct {
+	Parts   []string
+	Out     io.Writer
+	NoColor bool
+}
+
+func (c *Console) Write(p []byte) (n int, err error) {
+	buf := pool.Get()
+
+	decoder := json.NewDecoder(bytes.NewReader(p))
+	decoder.UseNumber()
+	var data map[string]interface{}
+	if err := decoder.Decode(&data); err != nil {
+		return n, fmt.Errorf("Cannot decode event: %s", err)
+	}
+
+	for _, part := range c.Parts {
+		if data[part] != nil {
+			c.WritePart(buf, data, part)
+			delete(data, part)
+			buf.WriteByte(' ')
+		}
+	}
+
+	fields := make([]string, 0, len(data))
+	for field := range data {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+
+	for _, field := range fields {
+		buf.WriteString(c.Colorize(fmt.Sprintf("%s=", field), Cyan)) // need quote?
+		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[field]), None))
+		buf.WriteByte(' ')
+	}
+	buf.WriteByte('\n')
+
+	_, err = buf.WriteTo(c.Out)
+	return len(p), err
+}
+
+func (c *Console) WritePart(buf *bytes.Buffer, data map[string]interface{}, part string) {
+	switch part {
+
+	case zerolog.LevelFieldName:
+		level := "   "
+		if cast, ok := data[part].(string); ok {
+			switch cast {
+			case "trace":
+				level = c.Colorize("TRC", Magenta)
+			case "debug":
+				level = c.Colorize("DBG", Gray)
+			case "info":
+				level = c.Colorize("INF", Green)
+			case "warn":
+				level = c.Colorize("WRN", Yellow)
+			case "error":
+				level = c.Colorize("ERR", Red)
+			case "fatal":
+				level = c.Colorize("FTL", Red)
+			case "panic":
+				level = c.Colorize("PNC", Red)
+			}
+		} else {
+			level = strings.ToUpper(fmt.Sprintf("%s", data[part]))[0:3]
+		}
+		buf.WriteString(level)
+
+	case zerolog.TimestampFieldName:
+		ts := ""
+		switch t := data[part].(type) {
+		case string:
+			parsed, err := time.Parse(time.RFC3339, t)
+			if err != nil {
+				ts = t
+			} else {
+				ts = parsed.Format(time.Kitchen)
+			}
+
+		case json.Number:
+			i, err := t.Int64()
+			if err != nil {
+				ts = t.String()
+			} else {
+				ts = time.Unix(i, 0).UTC().Format(time.Kitchen)
+			}
+		}
+		if ts != "" {
+			buf.WriteString(c.Colorize(ts, Gray))
+		}
+
+	case zerolog.MessageFieldName:
+		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[part]), None))
+
+	case zerolog.CallerFieldName:
+		if caller, ok := data[part].(string); ok {
+			buf.WriteString(c.Colorize(path.Base(caller), Gray))
+		}
+
+	case zerolog.ErrorFieldName:
+		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[part]), Red))
+
+	default:
+		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[part]), None))
+	}
+}
+
+func (c *Console) Colorize(s interface{}, color int) string {
+	if c.NoColor || color == None {
+		return fmt.Sprintf("%v", s)
+	}
+	return fmt.Sprintf("\x1b[%dm%v\x1b[0m", color, s)
+}
+
+var Writer = &Console{
+	Parts: []string{
 		zerolog.TimestampFieldName,
 		zerolog.LevelFieldName,
 		"tags",
 		zerolog.CallerFieldName,
 		zerolog.MessageFieldName,
+		zerolog.ErrorFieldName,
 	},
-	TimeFormat: time.Kitchen,
-	NoColor:    os.Getenv(EnvNoColor) != "",
-	FormatCaller: func(i interface{}) string {
-		if caller, ok := i.(string); ok {
-			return colorize(path.Base(caller), ColorCaller)
-		}
-		return ""
-	},
-	FormatMessage: func(i interface{}) string {
-		if i == nil {
-			return colorize("-", ColorMessage)
-		}
-		return colorize(fmt.Sprintf("%s", i), ColorMessage)
-	},
-	FormatFieldName: func(i interface{}) string {
-		return colorize(fmt.Sprintf("%s=", i), ColorFieldName)
-	},
-	FormatFieldValue: func(i interface{}) string {
-		if i == nil {
-			return ""
-		}
-		return colorize(fmt.Sprintf("%s", i), ColorFieldValue)
-	},
-	FormatLevel: func(i interface{}) string {
-		var l string
-		if ll, ok := i.(string); ok {
-			switch ll {
-			case "trace":
-				l = colorize("TRC", Magenta)
-			case "debug":
-				l = colorize("DBG", Gray)
-			case "info":
-				l = colorize("INF", Green)
-			case "warn":
-				l = colorize("WRN", Yellow)
-			case "error":
-				l = colorize("ERR", Red)
-			case "fatal":
-				l = colorize("FTL", Red)
-			case "panic":
-				l = colorize("PNC", Red)
-			default:
-				l = "   "
-			}
-		} else {
-			if i == nil {
-				l = "   "
-			} else {
-				l = strings.ToUpper(fmt.Sprintf("%s", i))[0:3]
-			}
-		}
-		return l
-	},
+	NoColor: os.Getenv(EnvNoColor) != "",
+	Out:     Output(),
 }
 
 // SetOutput writer
 func SetOutput(out io.Writer) {
-	ConsoleWriter.Out = out
-}
-
-// https://github.com/rs/zerolog/blob/master/console.go#L265
-func colorize(s interface{}, color int) string {
-	if os.Getenv(EnvNoColor) != "" || color == None {
-		return fmt.Sprintf("%v", s)
-	}
-	return fmt.Sprintf("\x1b[%dm%v\x1b[0m", color, s)
+	Writer.Out = out
 }

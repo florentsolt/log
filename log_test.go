@@ -20,7 +20,7 @@ func TestLog(t *testing.T) {
 	Warn().Msg("Did you notice the last stack enty?")
 	Debug().Str("memory", "yes").Heap().Msg("Ok but what about memory?")
 	func1()
-	Info().Tag("APP").Msg("Support for tag")
+	Info().Tag("APP").Bool("yes", true).Msg("Support for tag")
 	Info().Tag("DB", "SYS").Msg("Support for tag*s*")
 	Debug().Dur("instant", 42*time.Millisecond).Dur("short", 2*time.Second).Dur("long", 6*time.Hour).Msg("Duration in seconds...")
 	Trace().Msg("Lowest level trace")

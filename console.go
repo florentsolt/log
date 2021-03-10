@@ -89,7 +89,7 @@ func (c *Console) Write(p []byte) (n int, err error) {
 				}
 			}
 		}
-		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[field]), None))
+		buf.WriteString(c.Colorize(fmt.Sprintf("%v", data[field]), None))
 		buf.WriteByte(' ')
 	}
 	buf.WriteByte('\n')
@@ -169,7 +169,7 @@ func (c *Console) WritePart(buf *bytes.Buffer, data map[string]interface{}, part
 		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[part]), Red))
 
 	default:
-		buf.WriteString(c.Colorize(fmt.Sprintf("%s", data[part]), None))
+		buf.WriteString(c.Colorize(fmt.Sprintf("%v", data[part]), None))
 	}
 }
 

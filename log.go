@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/rs/zerolog"
 )
@@ -25,6 +26,8 @@ func init() {
 	ConsoleWriter.Out = output
 
 	log = zerolog.New(ConsoleWriter).With().Timestamp().Caller().Logger()
+	zerolog.DurationFieldUnit = time.Second
+	zerolog.DurationFieldInteger = false
 
 	if os.Getenv(EnvLevel) != "" {
 		if os.Getenv(EnvLevel) == "disabled" {
@@ -53,6 +56,9 @@ func Logger() zerolog.Logger {
 }
 
 // from https://github.com/rs/zerolog/blob/master/log/log.go
+
+// Trace starts a new message with debug level.
+func Trace() *Event { return &Event{log.Trace()} }
 
 // Debug starts a new message with debug level.
 func Debug() *Event { return &Event{log.Debug()} }

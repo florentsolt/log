@@ -1,5 +1,5 @@
 module github.com/florentsolt/log
 
-go 1.14
+go 1.15
 
-require github.com/rs/zerolog v1.19.0
+require github.com/rs/zerolog v1.20.0

@@ -12,25 +12,31 @@ import (
 )
 
 const (
-	ColorCaller     = "gray"
-	ColorMessage    = "none"
-	ColorFieldName  = "cyan"
-	ColorFieldValue = "none"
+	None    = 0
+	Black   = 30
+	Red     = 21
+	Green   = 32
+	Yellow  = 33
+	Blue    = 34
+	Magenta = 35
+	Cyan    = 36
+	White   = 37
+	Gray    = 90
+
+	ColorCaller     = Gray
+	ColorMessage    = None
+	ColorFieldName  = Cyan
+	ColorFieldValue = None
 )
 
-var colors = map[string]int{
-	"black":   30,
-	"red":     31,
-	"green":   32,
-	"yellow":  33,
-	"blue":    34,
-	"magenta": 35,
-	"cyan":    36,
-	"white":   37,
-	"gray":    90,
-}
-
 var ConsoleWriter = &zerolog.ConsoleWriter{
+	PartsOrder: []string{
+		zerolog.TimestampFieldName,
+		zerolog.LevelFieldName,
+		"tags",
+		zerolog.CallerFieldName,
+		zerolog.MessageFieldName,
+	},
 	TimeFormat: time.Kitchen,
 	NoColor:    os.Getenv(EnvNoColor) != "",
 	FormatCaller: func(i interface{}) string {
@@ -49,24 +55,29 @@ var ConsoleWriter = &zerolog.ConsoleWriter{
 		return colorize(fmt.Sprintf("%s=", i), ColorFieldName)
 	},
 	FormatFieldValue: func(i interface{}) string {
+		if i == nil {
+			return ""
+		}
 		return colorize(fmt.Sprintf("%s", i), ColorFieldValue)
 	},
 	FormatLevel: func(i interface{}) string {
 		var l string
 		if ll, ok := i.(string); ok {
 			switch ll {
+			case "trace":
+				l = colorize("TRC", Magenta)
 			case "debug":
-				l = colorize("DBG", "gray")
+				l = colorize("DBG", Gray)
 			case "info":
-				l = colorize("INF", "green")
+				l = colorize("INF", Green)
 			case "warn":
-				l = colorize("WRN", "yellow")
+				l = colorize("WRN", Yellow)
 			case "error":
-				l = colorize("ERR", "red")
+				l = colorize("ERR", Red)
 			case "fatal":
-				l = colorize("FTL", "red")
+				l = colorize("FTL", Red)
 			case "panic":
-				l = colorize("PNC", "red")
+				l = colorize("PNC", Red)
 			default:
 				l = "   "
 			}
@@ -87,9 +98,9 @@ func SetOutput(out io.Writer) {
 }
 
 // https://github.com/rs/zerolog/blob/master/console.go#L265
-func colorize(s interface{}, color string) string {
-	if os.Getenv(EnvNoColor) != "" || color == "none" {
+func colorize(s interface{}, color int) string {
+	if os.Getenv(EnvNoColor) != "" || color == None {
 		return fmt.Sprintf("%v", s)
 	}
-	return fmt.Sprintf("\x1b[%dm%v\x1b[0m", colors[color], s)
+	return fmt.Sprintf("\x1b[%dm%v\x1b[0m", color, s)
 }

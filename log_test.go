@@ -18,7 +18,7 @@ func TestLog(t *testing.T) {
 	Info().Msg("Hello World!")
 	Error().Err(errors.New("Bad things")).Msg("Oops")
 	Warn().Msg("Did you notice the last stack enty?")
-	Debug().Heap().Msg("Ok but what about memory?")
+	Debug().Str("memory", "yes").Heap().Msg("Ok but what about memory?")
 	func1()
 	Info().Tag("APP").Msg("Support for tag")
 	Info().Tag("DB", "SYS").Msg("Support for tag*s*")

@@ -18,5 +18,5 @@ func (e *Event) Callers() *Event {
 		}
 		lines = append(lines, fmt.Sprintf("%s:%d\t%s()", frame.File, frame.Line, frame.Function))
 	}
-	return &Event{e.Strs("callers", lines)}
+	return e.Strs("callers", lines)
 }

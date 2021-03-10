@@ -61,27 +61,12 @@ func Logger() Wrapper {
 
 // from https://github.com/rs/zerolog/blob/master/log/log.go
 
-// Trace starts a new message with debug level.
 func Trace() *Event { return &Event{instance.Trace()} }
-
-// Debug starts a new message with debug level.
 func Debug() *Event { return &Event{instance.Debug()} }
-
-// Info starts a new message with info level.
-func Info() *Event { return &Event{instance.Info()} }
-
-// Warn starts a new message with warn level.
-func Warn() *Event { return &Event{instance.Warn()} }
-
-// Error starts a new message with error level.
+func Info() *Event  { return &Event{instance.Info()} }
+func Warn() *Event  { return &Event{instance.Warn()} }
 func Error() *Event { return &Event{instance.Error()} }
-
-// Fatal starts a new message with fatal level. The os.Exit(1) function
-// is called by the Msg method.
 func Fatal() *Event { return &Event{instance.Fatal()} }
-
-// Panic starts a new message with panic level. The message is also sent
-// to the panic function.
 func Panic() *Event { return &Event{instance.Panic()} }
 
 // Print sends a log event using debug level and no extra field.

@@ -26,4 +26,6 @@ func TestLog(t *testing.T) {
 	Trace().Msg("Lowest level trace")
 	ctx := Tag("DB", "SYS")
 	ctx.Info().Msg("Tags from context")
+	compat := Compatibility()
+	compat.Warning("old", "school", "logging")
 }

@@ -104,6 +104,7 @@ func (c *Console) Write(p []byte) (n int, err error) {
 	}
 
 	_, err = buf.WriteTo(c.Out)
+	pool.Put(buf)
 	return len(p), err
 }
 

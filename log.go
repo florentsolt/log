@@ -96,6 +96,9 @@ func Printf(format string, v ...interface{}) {
 }
 
 // Write implements the io.Writer interface
+func (w Wrapper) Write(p []byte) (n int, err error) {
+	return w.parent.Write(p)
+}
 func Write(p []byte) (n int, err error) {
-	return instance.parent.Write(p)
+	return instance.Write(p)
 }

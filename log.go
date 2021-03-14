@@ -51,40 +51,35 @@ func SetLevel(level string) error {
 }
 
 type Wrapper struct {
-	zerolog.Logger
-}
-
-// Return the logger object
-func Logger() Wrapper {
-	return instance
+	parent zerolog.Logger
 }
 
 // from https://github.com/rs/zerolog/blob/master/log/log.go
 
-func (w Wrapper) Trace() *Event { return &Event{w.Logger.Trace()} }
+func (w Wrapper) Trace() *Event { return &Event{w.parent.Trace()} }
 func Trace() *Event             { return instance.Trace() }
 
-func (w Wrapper) Debug() *Event { return &Event{w.Logger.Debug()} }
+func (w Wrapper) Debug() *Event { return &Event{w.parent.Debug()} }
 func Debug() *Event             { return instance.Debug() }
 
-func (w Wrapper) Info() *Event { return &Event{w.Logger.Info()} }
+func (w Wrapper) Info() *Event { return &Event{w.parent.Info()} }
 func Info() *Event             { return instance.Info() }
 
-func (w Wrapper) Warn() *Event { return &Event{w.Logger.Warn()} }
+func (w Wrapper) Warn() *Event { return &Event{w.parent.Warn()} }
 func Warn() *Event             { return instance.Warn() }
 
-func (w Wrapper) Error() *Event { return &Event{w.Logger.Error()} }
+func (w Wrapper) Error() *Event { return &Event{w.parent.Error()} }
 func Error() *Event             { return instance.Error() }
 
-func (w Wrapper) Fatal() *Event { return &Event{w.Logger.Fatal()} }
+func (w Wrapper) Fatal() *Event { return &Event{w.parent.Fatal()} }
 func Fatal() *Event             { return instance.Fatal() }
 
-func (w Wrapper) Panic() *Event { return &Event{w.Logger.Panic()} }
+func (w Wrapper) Panic() *Event { return &Event{w.parent.Panic()} }
 func Panic() *Event             { return instance.Panic() }
 
 // Print sends a log event using debug level and no extra field.
 func (w Wrapper) Print(v ...interface{}) {
-	l := w.With().CallerWithSkipFrameCount(3).Logger()
+	l := w.parent.With().CallerWithSkipFrameCount(3).Logger()
 	l.Debug().Msg(fmt.Sprint(v...))
 }
 func Print(v ...interface{}) {
@@ -93,7 +88,7 @@ func Print(v ...interface{}) {
 
 // Printf sends a log event using debug level and no extra field.
 func (w Wrapper) Printf(format string, v ...interface{}) {
-	l := w.With().CallerWithSkipFrameCount(3).Logger()
+	l := w.parent.With().CallerWithSkipFrameCount(3).Logger()
 	l.Debug().Msg(fmt.Sprintf(format, v...))
 }
 func Printf(format string, v ...interface{}) {
@@ -102,5 +97,5 @@ func Printf(format string, v ...interface{}) {
 
 // Write implements the io.Writer interface
 func Write(p []byte) (n int, err error) {
-	return instance.Write(p)
+	return instance.parent.Write(p)
 }

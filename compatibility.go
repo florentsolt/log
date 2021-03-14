@@ -12,7 +12,7 @@ type CompatibilityWrapper struct {
 }
 
 func (w Wrapper) Compatibility() CompatibilityWrapper {
-	return CompatibilityWrapper{w.With().CallerWithSkipFrameCount(3).Logger()}
+	return CompatibilityWrapper{w.parent.With().CallerWithSkipFrameCount(3).Logger()}
 }
 func Compatibility() CompatibilityWrapper {
 	return instance.Compatibility()

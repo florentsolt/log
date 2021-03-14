@@ -28,4 +28,8 @@ func TestLog(t *testing.T) {
 	ctx.Info().Msg("Tags from context")
 	compat := Compatibility()
 	compat.Warning("old", "school", "logging")
+
+	lvl := Level(InfoLevel)
+	lvl.Debug().Msg("Can't see that one")
+	lvl.Info().Msg("But that one")
 }

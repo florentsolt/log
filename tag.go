@@ -5,5 +5,5 @@ func (e *Event) Tag(names ...string) *Event {
 }
 
 func Tag(names ...string) Wrapper {
-	return Wrapper{instance.With().Strs("tags", names).Logger()}
+	return Wrapper{instance.parent.With().Strs("tags", names).Logger()}
 }

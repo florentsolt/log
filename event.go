@@ -16,8 +16,8 @@ func (e *Event) Msg(msg string) {
 	e.parent.Msg(msg)
 }
 
-func (e *Event) Msgf(msg string) {
-	e.parent.Msgf(msg)
+func (e *Event) Msgf(format string, v ...interface{}) {
+	e.parent.Msgf(format, v...)
 }
 
 func (e *Event) Dict(key string, dict *Event) *Event {

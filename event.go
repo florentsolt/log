@@ -12,6 +12,10 @@ type Event struct {
 	parent *zerolog.Event
 }
 
+func (e *Event) Send() {
+	e.parent.Send()
+}
+
 func (e *Event) Msg(msg string) {
 	e.parent.Msg(msg)
 }

@@ -25,7 +25,7 @@ func init() {
 	if os.Getenv(EnvJson) == "" {
 		w = Writer
 	}
-	instance = Wrapper{zerolog.New(w).With().Timestamp().Caller().Logger()}
+	instance = Wrapper{zerolog.New(w).With().Timestamp().CallerWithSkipFrameCount(3).Logger()}
 	zerolog.DurationFieldUnit = time.Second
 	zerolog.DurationFieldInteger = false
 
@@ -79,7 +79,7 @@ func Panic() *Event             { return instance.Panic() }
 
 // Print sends a log event using debug level and no extra field.
 func (w Wrapper) Print(v ...interface{}) {
-	l := w.parent.With().CallerWithSkipFrameCount(3).Logger()
+	l := w.parent.With().CallerWithSkipFrameCount(4).Logger()
 	l.Debug().Msg(fmt.Sprint(v...))
 }
 func Print(v ...interface{}) {

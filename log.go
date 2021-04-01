@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -80,7 +81,7 @@ func Panic() *Event             { return instance.Panic() }
 // Print sends a log event using debug level and no extra field.
 func (w Wrapper) Print(v ...interface{}) {
 	l := w.parent.With().CallerWithSkipFrameCount(4).Logger()
-	l.Debug().Msg(fmt.Sprint(v...))
+	l.Debug().Msg(strings.TrimSpace(fmt.Sprint(v...)))
 }
 func Print(v ...interface{}) {
 	instance.Print(v...)
@@ -89,7 +90,7 @@ func Print(v ...interface{}) {
 // Printf sends a log event using debug level and no extra field.
 func (w Wrapper) Printf(format string, v ...interface{}) {
 	l := w.parent.With().CallerWithSkipFrameCount(3).Logger()
-	l.Debug().Msg(fmt.Sprintf(format, v...))
+	l.Debug().Msg(strings.TrimSpace(fmt.Sprintf(format, v...)))
 }
 func Printf(format string, v ...interface{}) {
 	instance.Printf(format, v...)

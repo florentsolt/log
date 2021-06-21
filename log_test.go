@@ -24,6 +24,13 @@ func TestLog(t *testing.T) {
 	Info().Tag("DB", "SYS").Msg("Support for tag*s*")
 	Debug().Dur("instant", 42*time.Millisecond).Dur("short", 2*time.Second).Dur("long", 6*time.Hour).Msg("Duration in seconds...")
 	Trace().Msg("Lowest level trace")
+	Debug().Interface("dump", struct {
+		foo int
+		bar string
+	}{
+		foo: 42,
+		bar: "bar",
+	}).Send()
 	ctx := Tag("DB", "SYS")
 	ctx.Info().Msg("Tags from context")
 	compat := Compatibility()

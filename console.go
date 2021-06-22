@@ -77,7 +77,7 @@ func (c *Console) Write(p []byte) (n int, err error) {
 			cast, ok := data["heap"].([]interface{})
 			if ok && len(cast) == 2 {
 				alloc, err1 := cast[0].(json.Number).Float64()
-				total, err2 := cast[0].(json.Number).Float64()
+				total, err2 := cast[1].(json.Number).Float64()
 				if err1 == nil && err2 == nil {
 					buf.WriteString(c.Colorize(fmt.Sprintf(
 						"%.2fMB/%.2fMB",

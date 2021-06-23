@@ -205,7 +205,7 @@ func (e *Event) TimeDiff(key string, t time.Time, start time.Time) *Event {
 }
 
 func (e *Event) Interface(key string, i interface{}) *Event {
-	return &Event{e.parent.Str(key, fmt.Sprintf("%#v", i))}
+	return &Event{e.parent.Str(key, fmt.Sprintf("%+v", i))}
 }
 
 func (e *Event) Caller(skip ...int) *Event {

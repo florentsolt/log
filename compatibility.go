@@ -18,6 +18,17 @@ func Compatibility() CompatibilityWrapper {
 	return instance.Compatibility()
 }
 
+// print
+func (c CompatibilityWrapper) Print(v ...interface{}) {
+	c.wrapper.Print(v...)
+}
+func (c CompatibilityWrapper) Println(v ...interface{}) {
+	c.wrapper.Print(v...)
+}
+func (c CompatibilityWrapper) Printf(format string, v ...interface{}) {
+	c.wrapper.Printf(format, v...)
+}
+
 // level (used by gRPC)
 func (c CompatibilityWrapper) V(level int) bool { return true }
 

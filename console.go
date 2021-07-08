@@ -39,6 +39,7 @@ type Console struct {
 	Parts   []string
 	Out     io.Writer
 	NoColor bool
+	NoTime  bool
 }
 
 func (c *Console) Write(p []byte) (n int, err error) {
@@ -53,6 +54,9 @@ func (c *Console) Write(p []byte) (n int, err error) {
 
 	for _, part := range c.Parts {
 		if data[part] != nil {
+			if part == zerolog.TimestampFieldName && c.NoTime {
+				continue
+			}
 			c.WritePart(buf, data, part)
 			delete(data, part)
 			buf.WriteByte(' ')
@@ -191,6 +195,7 @@ var Writer = &Console{
 		zerolog.ErrorFieldName,
 	},
 	NoColor: os.Getenv(EnvNoColor) != "",
+	NoTime:  os.Getenv(EnvNoTime) != "",
 	Out:     Output(),
 }
 
